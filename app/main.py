@@ -31,6 +31,12 @@ async def root():
     return {"message": "file storage web app - health check"}
 
 
+@app.get("/all-users", response_model=List[schemas.AllUsers])
+async def all_users(db: Session = Depends(get_db)):
+    all_user = db.query(models.Users).all()
+    return all_user
+
+
 @app.post("/create-user", status_code=status.HTTP_201_CREATED, response_model=schemas.UserOut)
 async def create_user(user : schemas.UserCreate, db: Session = Depends(get_db)):
     try:
@@ -47,3 +53,18 @@ async def create_user(user : schemas.UserCreate, db: Session = Depends(get_db)):
         return new_user
     except Exception:
         return {"status":"Unable to create user "}
+
+
+@app.post("/delete-user", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(user_id : int, db: Session = Depends(get_db)):
+    # deletes user from db
+    
+    user_to_delete = db.query(models.Users).filter(models.Users.user_id==user_id)
+
+    if user_to_delete.first() == None:
+        raiseExceptions(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with user ID {user_id} was not found")
+
+    user_to_delete.delete(synchronize_session=False)
+    db.commit()
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
