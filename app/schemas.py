@@ -12,7 +12,7 @@ class UserCreate(BaseModel):
     password : str
 
 # response model after creating user
-class UserOut(BaseModel):
+class UserCreateOut(BaseModel):
     user_id : int
     email: EmailStr
     created_at : datetime

@@ -15,7 +15,8 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 # dependency -- get a session to the database
-# needs to be added as another parameter to path operations 
+# needs to be added as another parameter to path operations
+# close session after session
 def get_db():
     db = SessionLocal()
     try:
