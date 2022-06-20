@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from . import models
 from .database import engine, get_db
 from .utils.db_conn import db_creds
-from .routers import users
+from .routers import users, auth
 
 # change db env here
 db_env = 'local'
@@ -26,10 +26,11 @@ except Exception as e:
     print("Error: ", e)
    
 
-@app.get("/")
-async def root():
-    return {"message": "file storage web app - health check"}
+# @app.get("/")
+# async def root():
+#     return {"message": "file storage web app - health check"}
 
 
 # call routers
 app.include_router(users.router)
+app.include_router(auth.router)

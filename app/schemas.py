@@ -30,3 +30,8 @@ class AllUsers(BaseModel):
     # handles sql to pydantic
     class Config:
         orm_mode = True
+
+# replace with OAuth2PasswordRequestForm
+# class UserLogin(BaseModel):
+#     email : EmailStr
+#     password : str

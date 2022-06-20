@@ -7,7 +7,8 @@ from ..database import get_db
 from ..utils import util
 
 router = APIRouter(
-    prefix = "/users"
+    prefix = "/users",
+    tags = ["Users"]
 )
 
 @router.get("/", response_model=List[schemas.AllUsers])
