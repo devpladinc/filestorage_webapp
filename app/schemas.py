@@ -35,3 +35,12 @@ class AllUsers(BaseModel):
 # class UserLogin(BaseModel):
 #     email : EmailStr
 #     password : str
+
+class Token(BaseModel):
+    access_token : str
+    token_type : str
+
+# validate the data inside token ()
+class TokenData(BaseModel):
+    # since we only include id when we are creating token, TokenData should also check for an 'id' 
+    id : Optional[str] = None

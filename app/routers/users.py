@@ -1,10 +1,11 @@
 from typing import List
-from .. import models, schemas
+from .. import models, schemas, oauth2
 from sqlalchemy.orm import Session
 from logging import raiseExceptions
 from fastapi import status, Response, Depends, APIRouter
 from ..database import get_db
 from ..utils import util
+
 
 router = APIRouter(
     prefix = "/users",
@@ -26,9 +27,9 @@ async def get_user(user_id : int, db: Session = Depends(get_db)):
     
     return selected_user
 
-
+# dependency oauth2.get_current_user -- force check access token before executing / accessing endpoint
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.UserCreateOut)
-async def create_user(user : schemas.UserCreate, db: Session = Depends(get_db)):
+async def create_user(user : schemas.UserCreate, db: Session = Depends(get_db), current_user_id : int = Depends(oauth2.get_current_user)):
     try:
         # create hash for password
         hashed_password = util.bcrypthash(user.password)
