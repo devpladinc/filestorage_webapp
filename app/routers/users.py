@@ -29,7 +29,7 @@ async def get_user(user_id : int, db: Session = Depends(get_db)):
 
 # dependency oauth2.get_current_user -- force check access token before executing / accessing endpoint
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.UserCreateOut)
-async def create_user(user : schemas.UserCreate, db: Session = Depends(get_db), current_user_id : int = Depends(oauth2.get_current_user)):
+async def create_user(user : schemas.UserCreate, db: Session = Depends(get_db), authorized_user : int = Depends(oauth2.get_current_user)):
     try:
         # create hash for password
         hashed_password = util.bcrypthash(user.password)
@@ -47,9 +47,8 @@ async def create_user(user : schemas.UserCreate, db: Session = Depends(get_db), 
 
 
 @router.delete("/", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user(user_id : int, db: Session = Depends(get_db)):
+async def delete_user(user_id : int, db: Session = Depends(get_db), authorized_user : int = Depends(oauth2.get_current_user)):
     # deletes user from db
-    
     user_to_delete = db.query(models.Users).filter(models.Users.user_id==user_id)
 
     if user_to_delete.first() == None:

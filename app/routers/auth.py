@@ -13,7 +13,7 @@ router = APIRouter(
 )
 
 
-@router.post("/login")
+@router.post("/login", response_model=schemas.Token)
 def login(credentials : OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     # OAuth2PasswordRequestForm only returns 2 data, username and password. 
     # email might be placed in username field
@@ -32,5 +32,6 @@ def login(credentials : OAuth2PasswordRequestForm = Depends(), db: Session = Dep
         "user_id" : user.user_id
     }
     token = oauth2.create_access_token(data=payload)
+    token_type = "bearer"
 
-    return {"access_token": token, "token_type" : "bearer"}
+    return {"access_token": token, "token_type" : token_type}

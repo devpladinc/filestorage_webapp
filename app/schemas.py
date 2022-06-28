@@ -44,3 +44,15 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     # since we only include id when we are creating token, TokenData should also check for an 'id' 
     id : Optional[str] = None
+
+
+# schema for file upload - output
+class Files(BaseModel):
+    file_id : str
+    file_name : str
+    created_at : datetime
+
+# schema for file upload - output
+class FileOut(BaseModel):
+    file_name : str
+    file_type : str
