@@ -1,7 +1,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from google.cloud import storage
+from logging import raiseExceptions
+from fastapi import status
 from .utils.db_conn import db_creds as dbc
+from .utils.db_conn import gcp_creds as gbc
 
 # change env here
 dbenv = 'local'
@@ -23,3 +27,26 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+# gcp file upload
+async def check_bucket():
+    try:
+        storage_client = storage.Client.from_service_account_json(gbc[dbenv]['service_account'])
+    except ValueError as e:
+        return {
+            "status_code":403,
+            "detail": f"{e}"
+        }
+
+    bucket_count = len(list(storage_client.list_buckets()))
+    # no buckets found
+    if bucket_count == None:
+        raiseExceptions(status_code=status.HTTP_404_NOT_FOUND, detail=f"No available buckets found")
+    
+    try:
+        bucket = storage_client.get_bucket(gbc[dbenv]['bucket'])
+    except Exception:
+        return False
+        
+    return True

@@ -1,4 +1,3 @@
-from logging import raiseExceptions
 from fastapi import FastAPI, Path, status, HTTPException, Response, Depends
 import psycopg2 as ps
 from psycopg2.extras import RealDictCursor

@@ -12,13 +12,13 @@ router = APIRouter(
     tags = ["Users"]
 )
 
-@router.get("/", response_model=List[schemas.AllUsers])
+@router.get("/", response_model=List[schemas.UserOut])
 async def all_users(db: Session = Depends(get_db)):
     all_user = db.query(models.Users).all()
     return all_user
 
 
-@router.get("/{user_id}", response_model=schemas.AllUsers)
+@router.get("/{user_id}", response_model=schemas.UserOut)
 async def get_user(user_id : int, db: Session = Depends(get_db)):
     selected_user = db.query(models.Users).filter(models.Users.user_id==user_id).first()
 

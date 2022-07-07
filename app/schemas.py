@@ -21,13 +21,13 @@ class UserCreateOut(BaseModel):
         orm_mode = True
 
 # response model for post:all_users
-class AllUsers(BaseModel):
+class UserOut(BaseModel):
     user_id : int
     first_name : str
     last_name : str
     email: EmailStr
     created_at : datetime
-    # handles sql to pydantic
+
     class Config:
         orm_mode = True
 
@@ -48,9 +48,12 @@ class TokenData(BaseModel):
 
 # schema for file upload - output
 class Files(BaseModel):
-    file_id : str
+    file_id : int
     file_name : str
     created_at : datetime
+
+    class Config:
+        orm_mode = True
 
 # schema for file upload - output
 class FileOut(BaseModel):
