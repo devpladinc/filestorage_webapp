@@ -29,8 +29,8 @@ def get_db():
         db.close()
 
 
-# gcp file upload
-async def check_bucket():
+
+def get_gcp_client():
     try:
         storage_client = storage.Client.from_service_account_json(gbc[dbenv]['service_account'])
     except ValueError as e:
@@ -38,15 +38,36 @@ async def check_bucket():
             "status_code":403,
             "detail": f"{e}"
         }
+    return storage_client
+
+
+async def check_bucket():
+    storage_client = get_gcp_client()
 
     bucket_count = len(list(storage_client.list_buckets()))
     # no buckets found
     if bucket_count == None:
         raiseExceptions(status_code=status.HTTP_404_NOT_FOUND, detail=f"No available buckets found")
-    
     try:
         bucket = storage_client.get_bucket(gbc[dbenv]['bucket'])
     except Exception:
         return False
-        
     return True
+
+
+def upload_file(filename : str):
+    storage_client = get_gcp_client()
+
+    try:
+        bucket = storage_client.bucket(gbc[dbenv]['bucket'])
+        blob = bucket.blob(filename)
+        blob.upload_from_filename(filename)
+
+        # blob media link for saving to db
+        return blob.media_link
+
+    except Exception as e:
+        return {
+            "status_code":500,
+            "detail": f"{e}"
+        }

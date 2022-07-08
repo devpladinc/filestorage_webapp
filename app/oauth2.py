@@ -63,5 +63,4 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     # include db dependency on to be able to call inside db
     # check if id is in passed token AND matched after decode
     verified_user = db.query(models.Users).filter(models.Users.user_id==verified_token.id).first()
-    
     return verified_user

@@ -56,6 +56,10 @@ class Files(BaseModel):
         orm_mode = True
 
 # schema for file upload - output
-class FileOut(BaseModel):
+class FileUploadOut(BaseModel):
     file_name : str
-    file_type : str
+    user_id : int
+    created_at : datetime
+
+    class Config:
+        orm_mode = True

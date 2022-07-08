@@ -27,4 +27,5 @@ class Files(Base):
     # referenced the (table.column), policy in case of deletion
     user_id = Column(Integer, ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False)
     file_name = Column(String, nullable=False)
+    file_path = Column(String, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), nullable=False, server_default=text('now()'))
