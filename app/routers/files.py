@@ -2,7 +2,7 @@ from typing import List
 from .. import models, schemas, oauth2
 from sqlalchemy.orm import Session
 from logging import raiseExceptions
-from fastapi import status, Depends, APIRouter, UploadFile, HTTPException
+from fastapi import status, Depends, APIRouter, UploadFile, HTTPException, Response
 from .. import database
 
 
@@ -52,3 +52,31 @@ async def create_upload_file(file: UploadFile, db: Session = Depends(database.ge
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Unable to upload file. Unauthorized access.")
     else:
         return {'status': 403, 'description': 'Bucket not found'}
+
+
+@router.delete("/delete-file/{file_id}")
+async def delete_file_by_fileid(file_id:int, db: Session = Depends(database.get_db), authorized_user : int = Depends(oauth2.get_current_user)):
+    # check existing bucket and connection 
+    if database.check_bucket():
+        # check if authorized user
+        if authorized_user.user_id != None:
+            user_id = authorized_user.user_id
+            # check if file_id is owned by authorized_user
+            # user_id from authorized_user vs. user_id from db
+            file_owner = (db.query(models.Files).filter(models.Files.file_id==file_id).first()).user_id
+
+            if user_id == file_owner:
+                # proceed with deletion; retrive filename
+                file_name = (db.query(models.Files).filter(models.Files.file_id==file_id).first()).file_name
+                # delete from gcp
+                delete_status = database.delete_file(file_name)
+                # delete from db
+                file = db.query(models.Files).filter(models.Files.file_id==file_id)
+                file.delete(synchronize_session=False)
+                db.commit()
+
+                if delete_status:
+                    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+            else:
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Unable to delete file. Unauthorized access.")

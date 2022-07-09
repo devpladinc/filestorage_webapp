@@ -72,3 +72,21 @@ def upload_file(filename : str):
             "detail": f"{e}"
         }
 
+
+def delete_file(filename : str):
+    storage_client = get_gcp_client()
+
+    try:
+        bucket = storage_client.bucket(gbc[dbenv]['bucket'])
+        blob = bucket.blob(filename)
+        blob.delete()
+
+        # blob media link for saving to db
+        return True
+
+    except Exception as e:
+        return {
+            "status_code":500,
+            "detail": f"{e}"
+        }
+
