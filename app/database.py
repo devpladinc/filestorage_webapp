@@ -3,7 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from google.cloud import storage
 from logging import raiseExceptions
-from fastapi import status
+from fastapi import status, HTTPException
 from .utils.db_conn import db_creds as dbc
 from .utils.db_conn import gcp_creds as gbc
 
@@ -47,7 +47,7 @@ async def check_bucket():
     bucket_count = len(list(storage_client.list_buckets()))
     # no buckets found
     if bucket_count == None:
-        raiseExceptions(status_code=status.HTTP_404_NOT_FOUND, detail=f"No available buckets found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No available buckets found")
     try:
         bucket = storage_client.get_bucket(gbc[dbenv]['bucket'])
     except Exception:
@@ -71,3 +71,4 @@ def upload_file(filename : str):
             "status_code":500,
             "detail": f"{e}"
         }
+

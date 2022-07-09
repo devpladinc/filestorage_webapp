@@ -1,8 +1,9 @@
+from http.client import HTTPException
 from typing import List
 from .. import models, schemas, oauth2
 from sqlalchemy.orm import Session
 from logging import raiseExceptions
-from fastapi import status, Response, Depends, APIRouter
+from fastapi import status, Response, Depends, APIRouter, HTTPException
 from ..database import get_db
 from ..utils import util
 
@@ -23,7 +24,7 @@ async def get_user(user_id : int, db: Session = Depends(get_db)):
     selected_user = db.query(models.Users).filter(models.Users.user_id==user_id).first()
 
     if selected_user == None:
-        raiseExceptions(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with user ID {user_id} was not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with user ID {user_id} was not found")
     
     return selected_user
 
@@ -52,7 +53,7 @@ async def delete_user(user_id : int, db: Session = Depends(get_db), authorized_u
     user_to_delete = db.query(models.Users).filter(models.Users.user_id==user_id)
 
     if user_to_delete.first() == None:
-        raiseExceptions(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with user ID {user_id} was not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with user ID {user_id} was not found")
 
     user_to_delete.delete(synchronize_session=False)
     db.commit()
