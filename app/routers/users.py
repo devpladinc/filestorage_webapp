@@ -2,16 +2,32 @@ from http.client import HTTPException
 from typing import List
 from .. import models, schemas, oauth2
 from sqlalchemy.orm import Session
-from logging import raiseExceptions
-from fastapi import status, Response, Depends, APIRouter, HTTPException
+from fastapi import status, Response, Depends, APIRouter, HTTPException, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.encoders import jsonable_encoder
 from ..database import get_db
 from ..utils import util
 
-
+templates = Jinja2Templates(directory='./app/templates')
 router = APIRouter(
     prefix = "/users",
     tags = ["Users"]
 )
+
+
+# needs to add db/dependencies
+@router.get("/dev", response_class=HTMLResponse)
+async def main_page(request : Request, db: Session = Depends(get_db)):
+
+    users = jsonable_encoder(await all_users(db))
+
+    context = {
+        'request' : request,
+        'users' : users
+    }
+    return templates.TemplateResponse("index.html", context)
+
 
 @router.get("/", response_model=List[schemas.UserOut])
 async def all_users(db: Session = Depends(get_db)):
@@ -59,3 +75,5 @@ async def delete_user(user_id : int, db: Session = Depends(get_db), authorized_u
     db.commit()
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
