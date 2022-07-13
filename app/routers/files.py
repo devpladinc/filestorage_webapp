@@ -80,3 +80,23 @@ async def delete_file_by_fileid(file_id:int, db: Session = Depends(database.get_
 
             else:
                 raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Unable to delete file. Unauthorized access.")
+
+
+@router.get("/download-file/{file_id}")
+async def download_file_by_fileid(file_id:int, db: Session = Depends(database.get_db), authorized_user : int = Depends(oauth2.get_current_user)):
+    # check existing bucket and connection 
+    if database.check_bucket():
+        if authorized_user.user_id != None:
+            user_id = authorized_user.user_id
+            file_owner = (db.query(models.Files).filter(models.Files.file_id==file_id).first()).user_id
+
+            if user_id == file_owner:
+                # proceed with download; retrive filename
+                file_name = (db.query(models.Files).filter(models.Files.file_id==file_id).first()).file_name
+                download_status = database.download_file(file_name)
+                
+                if download_status:
+                    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+            else:
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=f"Unable to delete file. Unauthorized access.")

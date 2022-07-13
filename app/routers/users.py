@@ -9,11 +9,13 @@ from fastapi.encoders import jsonable_encoder
 from ..database import get_db
 from ..utils import util
 
-templates = Jinja2Templates(directory='./app/templates')
+
 router = APIRouter(
     prefix = "/users",
     tags = ["Users"]
 )
+# html files
+templates = Jinja2Templates(directory='./app/templates')
 
 
 # needs to add db/dependencies
@@ -24,7 +26,7 @@ async def main_page(request : Request, db: Session = Depends(get_db)):
 
     context = {
         'request' : request,
-        'users' : users
+        'users' : users[0]
     }
     return templates.TemplateResponse("index.html", context)
 
@@ -41,8 +43,9 @@ async def get_user(user_id : int, db: Session = Depends(get_db)):
 
     if selected_user == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with user ID {user_id} was not found")
-    
+
     return selected_user
+
 
 # dependency oauth2.get_current_user -- force check access token before executing / accessing endpoint
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.UserCreateOut)
@@ -73,7 +76,6 @@ async def delete_user(user_id : int, db: Session = Depends(get_db), authorized_u
 
     user_to_delete.delete(synchronize_session=False)
     db.commit()
-
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 

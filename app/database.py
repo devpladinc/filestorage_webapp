@@ -90,3 +90,18 @@ def delete_file(filename : str):
             "detail": f"{e}"
         }
 
+
+def download_file(filename : str):
+    storage_client = get_gcp_client()
+
+    try:
+        bucket = storage_client.bucket(gbc[dbenv]['bucket'])
+        blob = bucket.blob(filename)
+        blob.download_to_filename("downloads_" + filename)
+        return True
+
+    except Exception as e:
+        return {
+            "status_code":500,
+            "detail": f"{e}"
+        }
