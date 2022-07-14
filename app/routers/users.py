@@ -20,7 +20,7 @@ templates = Jinja2Templates(directory='./app/templates')
 
 # needs to add db/dependencies
 @router.get("/dev", response_class=HTMLResponse)
-async def main_page(request : Request, db: Session = Depends(get_db)):
+async def users_page(request : Request, db: Session = Depends(get_db)):
 
     users = jsonable_encoder(await all_users(db))
 

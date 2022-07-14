@@ -1,15 +1,32 @@
 from typing import List
 from .. import models, schemas, oauth2
 from sqlalchemy.orm import Session
-from logging import raiseExceptions
-from fastapi import status, Depends, APIRouter, UploadFile, HTTPException, Response
+from fastapi import status, Depends, APIRouter, UploadFile, HTTPException, Response, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.encoders import jsonable_encoder
 from .. import database
+from ..database import get_db
 
 
 router = APIRouter(
     tags = ["Files"],
     prefix = "/files"
 )
+
+templates = Jinja2Templates(directory='./app/templates')
+
+
+@router.get("/dev", response_class=HTMLResponse)
+async def users_page(request : Request, db: Session = Depends(get_db)):
+
+    files = jsonable_encoder(await get_all_files(db))
+    context = {
+        'request' : request,
+        'users' : files[0]
+    }
+    return templates.TemplateResponse("index.html", context)
+
 
 @router.get("/", response_model=List[schemas.Files])
 async def get_all_files(db: Session = Depends(database.get_db)):
